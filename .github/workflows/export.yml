@@ -1,0 +1,38 @@
+name: Export Models
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install OpenSCAD (Nightly)
+        run: |
+          sudo add-apt-repository ppa:openscad/nightly -y
+          sudo apt-get update
+          sudo apt-get install openscad-nightly -y
+
+      - name: Create symlink for openscad
+        run: sudo ln -s /usr/bin/openscad-nightly /usr/bin/openscad
+
+      - name: Run Export Script
+        shell: pwsh
+        run: ./export_sheep.ps1 -RenderPng
+
+      - name: Upload STLs as Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sheep-Insert-STLs
+          path: STLs/*.stl
+
+      - name: Upload PNG Previews
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sheep-Insert-PNGs
+          path: PNGs/*.png
