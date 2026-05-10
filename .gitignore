@@ -1,5 +1,7 @@
 STLs/
 PNGs/
+*.stl
+*.png
 *.log
 *.tmp
 .DS_Store
