@@ -14,8 +14,11 @@ jobs:
 
       - name: Install OpenSCAD (Nightly)
         run: |
-          sudo snap install openscad-nightly
-          sudo ln -s /snap/bin/openscad-nightly /usr/local/bin/openscad
+          sudo apt-get install -y libfuse2
+          LATEST_APPIMAGE=$(curl -s https://files.openscad.org/snapshots/ | grep -o 'href="OpenSCAD-.*x86_64\.AppImage"' | head -1 | cut -d'"' -f2)
+          wget -qO openscad.AppImage "https://files.openscad.org/snapshots/$LATEST_APPIMAGE"
+          chmod +x openscad.AppImage
+          sudo mv openscad.AppImage /usr/local/bin/openscad
 
       - name: Run Export Script
         shell: pwsh
