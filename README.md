@@ -1,6 +1,6 @@
 # The Sheep Insert
 
-![Box Preview](PNGs/sheep_MB_Box.png)
+![Box Preview](PNGs/sheep_Full_Assembly.png)
 
 A custom, 3D-printable modular board game insert designed using OpenSCAD and the [Boardgame Insert Toolkit (BIT)](https://github.com/IdoMagal/The-Boardgame-Insert-Toolkit).
 

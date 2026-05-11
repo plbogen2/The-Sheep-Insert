@@ -98,4 +98,27 @@ foreach ($id in $boxes) {
     }
 }
 
+if ($RenderPng) {
+    Write-Host "Rendering: Full Assembly" -ForegroundColor Yellow
+    $fullPngFile = "$pngDir/sheep_Full_Assembly.png"
+    $runFile = "run.scad"
+    $runContent = "print_lid = false; print_box = true; box_id = `"`"; include <$scadFile>;"
+    Set-Content -Path $runFile -Value $runContent
+    
+    if (Test-Path $fullPngFile) { Remove-Item $fullPngFile }
+    $pngArgs = @(
+        "-o", $fullPngFile,
+        "--imgsize", "1024,1024",
+        "--colorscheme", "Cornfield",
+        "--viewall", "--autocenter",
+        "--enable", "all",
+        $runFile
+    )
+    & $osPath $pngArgs
+    if (Test-Path $fullPngFile) {
+        Write-Host "  [PNG] Full Assembly Success" -ForegroundColor Green
+    }
+    if (Test-Path $runFile) { Remove-Item $runFile }
+}
+
 Write-Host "--- All Processes Complete ---" -ForegroundColor Cyan
