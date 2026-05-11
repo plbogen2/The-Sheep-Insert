@@ -71,7 +71,7 @@ foreach ($id in $boxes) {
         )
         & $osPath $stlArgs
 
-        if (Test-Path $stlFile -and (Get-Item $stlFile).Length -gt 0) {
+        if ((Test-Path $stlFile) -and (Get-Item $stlFile).Length -gt 0) {
             Write-Host "  [STL] Success" -ForegroundColor Green
         } else {
             Write-Host "  [STL] Failed" -ForegroundColor Red
