@@ -22,6 +22,12 @@ jobs:
       - name: Create symlink for openscad
         run: sudo ln -s /usr/bin/openscad-nightly /usr/local/bin/openscad
 
+      - name: Download Boardgame Insert Toolkit
+        run: |
+          git clone --depth 1 https://github.com/dppdppd/The-Boardgame-Insert-Toolkit.git bit_temp
+          find bit_temp -name "boardgame_insert_toolkit_lib.4.scad" -exec cp {} . \;
+          rm -rf bit_temp
+
       - name: Run Export Script
         shell: pwsh
         run: ./export_sheep.ps1 -RenderPng
