@@ -14,7 +14,7 @@ jobs:
 
       - name: Install OpenSCAD (Nightly)
         run: |
-          sudo apt-get install -y libfuse2
+          sudo apt-get install -y libfuse2 libegl1 libgl1
           LATEST_APPIMAGE=$(curl -s https://files.openscad.org/snapshots/ | grep -o 'href="OpenSCAD-.*x86_64\.AppImage"' | head -1 | cut -d'"' -f2)
           wget -qO openscad.AppImage "https://files.openscad.org/snapshots/$LATEST_APPIMAGE"
           chmod +x openscad.AppImage
