@@ -1,5 +1,7 @@
 # The Sheep Insert
 
+![Box Preview](PNGs/sheep_MB_Box.png)
+
 A custom, 3D-printable modular board game insert designed using OpenSCAD and the [Boardgame Insert Toolkit (BIT)](https://github.com/IdoMagal/The-Boardgame-Insert-Toolkit).
 
 This insert is designed specifically to fit a 9 1/4" (234.95mm) box interior and provides organized storage for cards, tokens, and character traits.
