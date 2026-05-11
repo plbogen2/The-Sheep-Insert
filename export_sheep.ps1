@@ -59,11 +59,14 @@ foreach ($id in $boxes) {
         
         Write-Host "Rendering: $baseName" -ForegroundColor Yellow
         
+        # Handle cross-platform string quoting for OpenSCAD
+        $boxIdArg = if ($IsWindows) { 'box_id=\"' + $id + '\"' } else { 'box_id="' + $id + '"' }
+
         # --- STL RENDER ---
         if (Test-Path $stlFile) { Remove-Item $stlFile }
         $stlArgs = @(
             "-o", $stlFile,
-            "-D", ('box_id=\"' + $id + '\"'),
+            "-D", $boxIdArg,
             "-D", "print_lid=$pLid",
             "-D", "print_box=$pBox",
             "--enable", "all",
@@ -82,7 +85,7 @@ foreach ($id in $boxes) {
             if (Test-Path $pngFile) { Remove-Item $pngFile }
             $pngArgs = @(
                 "-o", $pngFile,
-                "-D", ('box_id=\"' + $id + '\"'),
+                "-D", $boxIdArg,
                 "-D", "print_lid=$pLid",
                 "-D", "print_box=$pBox",
                 "--imgsize", "1024,1024",
