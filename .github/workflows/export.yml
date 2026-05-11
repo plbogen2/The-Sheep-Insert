@@ -14,11 +14,13 @@ jobs:
 
       - name: Install OpenSCAD (Nightly)
         run: |
-          sudo apt-get install -y libfuse2 libegl1 libgl1
-          LATEST_APPIMAGE=$(curl -s https://files.openscad.org/snapshots/ | grep -o 'href="OpenSCAD-.*x86_64\.AppImage"' | head -1 | cut -d'"' -f2)
-          wget -qO openscad.AppImage "https://files.openscad.org/snapshots/$LATEST_APPIMAGE"
-          chmod +x openscad.AppImage
-          sudo mv openscad.AppImage /usr/local/bin/openscad
+          wget -qO- https://files.openscad.org/OBS-Repository-Key.pub | sudo tee /etc/apt/trusted.gpg.d/obs-openscad-nightly.asc
+          echo "deb https://download.opensuse.org/repositories/home:/t-paul/xUbuntu_24.04/ ./" | sudo tee /etc/apt/sources.list.d/openscad.list
+          sudo apt-get update
+          sudo apt-get install -y openscad-nightly
+
+      - name: Create symlink for openscad
+        run: sudo ln -s /usr/bin/openscad-nightly /usr/local/bin/openscad
 
       - name: Run Export Script
         shell: pwsh
