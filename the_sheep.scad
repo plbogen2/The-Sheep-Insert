@@ -28,7 +28,7 @@ lid_ironwork = [
 function box_deck(name, box_w, box_d, pos_xy, lid_lbl, id_off, int_xy) = [
     OBJECT_BOX,
     [ NAME, name ], [ BOX_SIZE_XYZ, [box_w, box_d, h_std] ], [ POSITION_XY, pos_xy ],
-    [ CHAMFER_N, chamf ],
+    [ CHAMFER_N, chamf ], [ BOX_WALL_THICKNESS, 1.5 ],
     [ BOX_LID,  
         each lid_ironwork,  
         [ LABEL, [ LBL_TEXT, lid_lbl ], [ LBL_SIZE, 6 ], [ LBL_FONT, g_font ] ] 
@@ -58,10 +58,11 @@ function box_traits(name, pos_xy) = [
     [ LABEL, [ LBL_TEXT, name ], [ LBL_PLACEMENT, LEFT ], [ LBL_SIZE, 4 ], [ POSITION_XY, [25, -12] ], [ LBL_FONT, g_font ] ],
     [ BOX_FEATURE, 
         [ FTR_NUM_COMPARTMENTS_XY, [1, 6] ], 
-        [ FTR_COMPARTMENT_SIZE_XYZ, [c2_w - 6, 10, h_std-4] ], 
+        [ FTR_COMPARTMENT_SIZE_XYZ, [c2_w - 6, 9.4, h_std-4] ], 
         [ FTR_PEDESTAL_BASE_B, true ], 
         [ FTR_CUTOUT_SIDES_4B, [true, true, false, false] ], 
         [ FTR_CUTOUT_WIDTH_PCT, 65 ], 
+        [ FTR_CUTOUT_DEPTH_MAX, 3.1 ],
         [ LABEL, 
             [ LBL_TEXT, [ ["MERC"], ["DOC"], ["SURV"], ["SGT"], ["MECH"], ["SCOUT"] ] ], 
             [ LBL_PLACEMENT, CENTER ], [ LBL_SIZE, 3.5 ], [ LBL_FONT, g_font ] 
@@ -103,9 +104,9 @@ function box_bags(name, label, pos_xy) = [
     ]
 ];
 
-print_lid = true;
-print_box = true;
-box_id = "";
+print_lid = is_undef(print_lid) ? true : print_lid;
+print_box = is_undef(print_box) ? true : print_box;
+box_id = is_undef(box_id) ? "" : box_id;
 
 // --- FINAL ASSEMBLY ---
 data = [
