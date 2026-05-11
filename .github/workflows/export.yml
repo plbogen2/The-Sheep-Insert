@@ -14,12 +14,8 @@ jobs:
 
       - name: Install OpenSCAD (Nightly)
         run: |
-          sudo add-apt-repository ppa:openscad/nightly -y
-          sudo apt-get update
-          sudo apt-get install openscad-nightly -y
-
-      - name: Create symlink for openscad
-        run: sudo ln -s /usr/bin/openscad-nightly /usr/bin/openscad
+          sudo snap install openscad-nightly
+          sudo ln -s /snap/bin/openscad-nightly /usr/local/bin/openscad
 
       - name: Run Export Script
         shell: pwsh
