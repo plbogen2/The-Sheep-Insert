@@ -62,7 +62,7 @@ function box_traits(name, pos_xy) = [
         [ FTR_PEDESTAL_BASE_B, true ], 
         [ FTR_CUTOUT_SIDES_4B, [true, true, false, false] ], 
         [ FTR_CUTOUT_WIDTH_PCT, 65 ], 
-        [ FTR_CUTOUT_DEPTH_MAX, 3.1 ],
+        [ FTR_CUTOUT_DEPTH_PCT, 40 ],
         [ LABEL, 
             [ LBL_TEXT, [ ["MERC"], ["DOC"], ["SURV"], ["SGT"], ["MECH"], ["SCOUT"] ] ], 
             [ LBL_PLACEMENT, CENTER ], [ LBL_SIZE, 3.5 ], [ LBL_FONT, g_font ] 
@@ -104,15 +104,15 @@ function box_bags(name, label, pos_xy) = [
     ]
 ];
 
-print_lid = is_undef(print_lid) ? true : print_lid;
-print_box = is_undef(print_box) ? true : print_box;
-box_id = is_undef(box_id) ? "" : box_id;
+local_print_lid = is_undef(print_lid) ? true : print_lid;
+local_print_box = is_undef(print_box) ? true : print_box;
+local_box_id = is_undef(box_id) ? "" : box_id;
 
 // --- FINAL ASSEMBLY ---
 data = [
-    [G_PRINT_LID_B, print_lid],
-    [G_PRINT_BOX_B, print_box],
-    [G_ISOLATED_PRINT_BOX, box_id],
+    [G_PRINT_LID_B, local_print_lid],
+    [G_PRINT_BOX_B, local_print_box],
+    [G_ISOLATED_PRINT_BOX, local_box_id],
     
     box_deck("LB", c1_w, 106, [0, 0],   "EQUIPMENT", [40, -12], poker_int),
     box_deck("LC", c1_w, 106, [0, 106], "EVENTS",    [40, -12], poker_int),
