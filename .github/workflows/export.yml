@@ -8,13 +8,11 @@ on:
 jobs:
   export:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     permissions:
       contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install OpenSCAD (Nightly)
         run: |
@@ -37,13 +35,13 @@ jobs:
         run: ./export_sheep.ps1 -RenderPng
 
       - name: Upload STLs as Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Sheep-Insert-STLs
           path: STLs/*.stl
 
       - name: Upload PNG Previews
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Sheep-Insert-PNGs
           path: PNGs/*.png
