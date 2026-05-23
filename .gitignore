@@ -6,3 +6,4 @@ PNGs/
 *.tmp
 .DS_Store
 Thumbs.db
+_*.scad
