@@ -123,7 +123,7 @@ foreach ($id in $boxesToBuild) {
             "print_lid = $pLid;",
             "print_box = $pBox;",
             "box_id = `"$id`";",
-            "include `"$includeSheep`""
+            "include <$includeSheep>"
         )
         $utf8 = New-Object System.Text.UTF8Encoding $false
         [System.IO.File]::WriteAllText($runFile, ($runLines -join "`n"), $utf8)
@@ -174,7 +174,7 @@ if ($RenderPng) {
         "print_lid = false;",
         "print_box = true;",
         "box_id = `"`";",
-        "include `"$includeSheep`""
+        "include <$includeSheep>"
     )
     $utf8f = New-Object System.Text.UTF8Encoding $false
     [System.IO.File]::WriteAllText($runFull, ($fullLines -join "`n"), $utf8f)
