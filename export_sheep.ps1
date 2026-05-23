@@ -1,7 +1,6 @@
 param(
     [switch]$RenderPng = $false,
-    [switch]$Test = $false,
-    [string[]]$Boxes = @()
+    [switch]$Test = $false
 )
 
 $ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent -LiteralPath $MyInvocation.MyCommand.Path }
@@ -27,7 +26,8 @@ $possiblePaths = if ($IsWindows -or $env:OS -like "*Windows*") {
         "C:\Program Files\OpenSCAD",
         "C:\Program Files (x86)\OpenSCAD"
     )
-} else {
+}
+else {
     @(
         "/usr/bin",
         "/usr/local/bin"
@@ -35,7 +35,7 @@ $possiblePaths = if ($IsWindows -or $env:OS -like "*Windows*") {
 }
 
 $osPath = ""
-$exeName = if ($IsWindows -or $env:OS -like "*Windows*") { "openscad.com" } else { "openscad" }
+$exeName = if ($IsWindows -or $env:OS -like "*Windows*") { "openscad.exe" } else { "openscad" }
 $tempDir = [System.IO.Path]::GetTempPath()
 
 foreach ($p in $possiblePaths) {
@@ -65,34 +65,22 @@ $types = @("Box", "Lid")
 $commitMessage = ""
 try {
     $commitMessage = git log -1 --pretty=%B 2>$null
-} catch {
+}
+catch {
     # git not available or failed, ignore
 }
 
 $boxesToBuild = @()
-if ($Boxes.Count -gt 0) {
-    foreach ($b in $Boxes) {
-        $t = $b.Trim()
+if ($commitMessage -match "\[build:(.*?)\]") {
+    $tags = $matches[1] -split ","
+    foreach ($tag in $tags) {
+        $t = $tag.Trim()
         if ($t -eq "all") {
             $boxesToBuild = $allBoxes
             break
         }
         if ($allBoxes -contains $t -and $boxesToBuild -notcontains $t) {
             $boxesToBuild += $t
-        }
-    }
-} else {
-    if ($commitMessage -match "\[build:(.*?)\]") {
-        $tags = $matches[1] -split ","
-        foreach ($tag in $tags) {
-            $t = $tag.Trim()
-            if ($t -eq "all") {
-                $boxesToBuild = $allBoxes
-                break
-            }
-            if ($allBoxes -contains $t -and $boxesToBuild -notcontains $t) {
-                $boxesToBuild += $t
-            }
         }
     }
 }
@@ -116,10 +104,12 @@ $includeSheep = if ($isWin) {
     try {
         $fso = New-Object -ComObject Scripting.FileSystemObject
         (($fso.GetFile($scadFile)).ShortPath) -replace '\\', '/'
-    } catch {
+    }
+    catch {
         ($scadFile -replace '\\', '/')
     }
-} else {
+}
+else {
     $scadFile -replace '\\', '/'
 }
 
@@ -156,12 +146,14 @@ foreach ($id in $boxesToBuild) {
         if (Test-Path $stlFile) { Remove-Item -LiteralPath $stlFile -Force }
         try {
             & $osPath @("-o", $stlFile, "--enable", "all", $runFile)
-        } finally {
+        }
+        finally {
             if (Test-Path -LiteralPath $runFile) { Remove-Item -LiteralPath $runFile -Force -ErrorAction SilentlyContinue }
         }
         if ((Test-Path $stlFile) -and (Get-Item $stlFile).Length -gt 0) {
             Write-Host "  [STL] Success" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "  [STL] Failed" -ForegroundColor Red
         }
 
@@ -176,11 +168,11 @@ foreach ($id in $boxesToBuild) {
                     "--imgsize", "1024,1024",
                     "--colorscheme", "Cornfield",
                     "--viewall", "--autocenter",
-                    "--csglimit", "10000000",
                     "--enable", "all",
                     $runFilePng
                 )
-            } finally {
+            }
+            finally {
                 if (Test-Path -LiteralPath $runFilePng) { Remove-Item -LiteralPath $runFilePng -Force -ErrorAction SilentlyContinue }
             }
             if (Test-Path $pngFile) {
@@ -193,23 +185,21 @@ foreach ($id in $boxesToBuild) {
                     if (!(Test-Path $baselineFile)) {
                         Write-Host "  [TEST] Baseline not found. Creating new baseline..." -ForegroundColor Yellow
                         Copy-Item -LiteralPath $pngFile -Destination $baselineFile -Force
-                    } else {
+                    }
+                    else {
                         Write-Host "  [TEST] Comparing against baseline..."
                         try {
-                            $isWin = ($IsWindows -or $env:OS -like "*Windows*")
-                            if ($isWin) {
-                                $output = & magick compare -metric AE -fuzz 5% $baselineFile $pngFile $diffFile 2>&1
-                            } else {
-                                $output = & /usr/bin/compare -metric AE -fuzz 5% $baselineFile $pngFile $diffFile 2>&1
-                            }
+                            $output = & magick compare -metric AE -fuzz 5% $baselineFile $pngFile $diffFile 2>&1
                             if ($LASTEXITCODE -eq 0) {
                                 Write-Host "  [TEST] PASSED" -ForegroundColor Green
                                 if (Test-Path $diffFile) { Remove-Item $diffFile -ErrorAction SilentlyContinue }
-                            } else {
+                            }
+                            else {
                                 Write-Host "  [TEST] FAILED: Mismatch! (Diff score: $output)" -ForegroundColor Red
                                 $global:TestFailed = $true
                             }
-                        } catch {
+                        }
+                        catch {
                             Write-Host "  [TEST] ERROR: ImageMagick (magick) is likely not installed or not in PATH." -ForegroundColor Red
                             $global:TestFailed = $true
                         }
@@ -239,11 +229,11 @@ if ($RenderPng) {
             "--imgsize", "1024,1024",
             "--colorscheme", "Cornfield",
             "--viewall", "--autocenter",
-            "--csglimit", "10000000",
             "--enable", "all",
             $runFull
         )
-    } finally {
+    }
+    finally {
         if (Test-Path -LiteralPath $runFull) { Remove-Item -LiteralPath $runFull -Force -ErrorAction SilentlyContinue }
     }
     if (Test-Path $fullPngFile) {
@@ -256,11 +246,35 @@ if ($RenderPng) {
             if (!(Test-Path $baselineFile)) {
                 Write-Host "  [TEST] Baseline not found. Creating new baseline..." -ForegroundColor Yellow
                 Copy-Item -LiteralPath $fullPngFile -Destination $baselineFile -Force
-            } else {
+            }
+            else {
                 Write-Host "  [TEST] Comparing against baseline..."
                 try {
-                    $isWin = ($IsWindows -or $env:OS -like "*Windows*")
-                    if ($isWin) {
+                    $output = & magick compare -metric AE -fuzz 5% $baselineFile $fullPngFile $diffFile 2>&1
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "  [TEST] PASSED" -ForegroundColor Green
+                        if (Test-Path $diffFile) { Remove-Item $diffFile -ErrorAction SilentlyContinue }
+                    }
+                    else {
+                        Write-Host "  [TEST] FAILED: Mismatch! (Diff score: $output)" -ForegroundColor Red
+                        $global:TestFailed = $true
+                    }
+                }
+                catch {
+                    Write-Host "  [TEST] ERROR: ImageMagick (magick) is likely not installed or not in PATH." -ForegroundColor Red
+                    $global:TestFailed = $true
+                }
+            }
+        }
+    }
+}
+
+Write-Host "--- All Processes Complete ---" -ForegroundColor Cyan
+
+if ($Test -and $global:TestFailed) {
+    Write-Host "ERROR: One or more visual regression tests failed." -ForegroundColor Red
+    exit 1
+}                   if ($isWin) {
                         $output = & magick compare -metric AE -fuzz 5% $baselineFile $fullPngFile $diffFile 2>&1
                     } else {
                         $output = & /usr/bin/compare -metric AE -fuzz 5% $baselineFile $fullPngFile $diffFile 2>&1
