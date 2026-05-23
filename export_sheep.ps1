@@ -196,7 +196,12 @@ foreach ($id in $boxesToBuild) {
                     } else {
                         Write-Host "  [TEST] Comparing against baseline..."
                         try {
-                            $output = & magick compare -metric AE -fuzz 5% $baselineFile $pngFile $diffFile 2>&1
+                            $isWin = ($IsWindows -or $env:OS -like "*Windows*")
+                            if ($isWin) {
+                                $output = & magick compare -metric AE -fuzz 5% $baselineFile $pngFile $diffFile 2>&1
+                            } else {
+                                $output = & compare -metric AE -fuzz 5% $baselineFile $pngFile $diffFile 2>&1
+                            }
                             if ($LASTEXITCODE -eq 0) {
                                 Write-Host "  [TEST] PASSED" -ForegroundColor Green
                                 if (Test-Path $diffFile) { Remove-Item $diffFile -ErrorAction SilentlyContinue }
@@ -254,7 +259,12 @@ if ($RenderPng) {
             } else {
                 Write-Host "  [TEST] Comparing against baseline..."
                 try {
-                    $output = & magick compare -metric AE -fuzz 5% $baselineFile $fullPngFile $diffFile 2>&1
+                    $isWin = ($IsWindows -or $env:OS -like "*Windows*")
+                    if ($isWin) {
+                        $output = & magick compare -metric AE -fuzz 5% $baselineFile $fullPngFile $diffFile 2>&1
+                    } else {
+                        $output = & compare -metric AE -fuzz 5% $baselineFile $fullPngFile $diffFile 2>&1
+                    }
                     if ($LASTEXITCODE -eq 0) {
                         Write-Host "  [TEST] PASSED" -ForegroundColor Green
                         if (Test-Path $diffFile) { Remove-Item $diffFile -ErrorAction SilentlyContinue }
