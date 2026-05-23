@@ -1,6 +1,7 @@
 param(
     [switch]$RenderPng = $false,
-    [switch]$Test = $false
+    [switch]$Test = $false,
+    [string[]]$Boxes = @()
 )
 
 $ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent -LiteralPath $MyInvocation.MyCommand.Path }
@@ -69,16 +70,29 @@ try {
 }
 
 $boxesToBuild = @()
-if ($commitMessage -match "\[build:(.*?)\]") {
-    $tags = $matches[1] -split ","
-    foreach ($tag in $tags) {
-        $t = $tag.Trim()
+if ($Boxes.Count -gt 0) {
+    foreach ($b in $Boxes) {
+        $t = $b.Trim()
         if ($t -eq "all") {
             $boxesToBuild = $allBoxes
             break
         }
         if ($allBoxes -contains $t -and $boxesToBuild -notcontains $t) {
             $boxesToBuild += $t
+        }
+    }
+} else {
+    if ($commitMessage -match "\[build:(.*?)\]") {
+        $tags = $matches[1] -split ","
+        foreach ($tag in $tags) {
+            $t = $tag.Trim()
+            if ($t -eq "all") {
+                $boxesToBuild = $allBoxes
+                break
+            }
+            if ($allBoxes -contains $t -and $boxesToBuild -notcontains $t) {
+                $boxesToBuild += $t
+            }
         }
     }
 }
