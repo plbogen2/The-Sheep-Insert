@@ -2,9 +2,14 @@ param(
     [switch]$RenderPng = $false
 )
 
+$ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent -LiteralPath $MyInvocation.MyCommand.Path }
+Set-Location -LiteralPath $ScriptRoot
+
 # 1. FIND OPENSCAD INSTALLATION
 # Checks common paths for both System and User-level installs
 $possiblePaths = @(
+    "$env:LOCALAPPDATA\Programs\OpenSCAD (Nightly)",
+    "C:\Program Files\OpenSCAD (Nightly)",
     "$env:LOCALAPPDATA\Programs\OpenSCAD",
     "$env:LOCALAPPDATA\OpenSCAD",
     "C:\Program Files\OpenSCAD",
@@ -17,15 +22,17 @@ $osPath = ""
 $exeName = if ($IsWindows -or $env:OS -like "*Windows*") { "openscad.exe" } else { "openscad" }
 
 foreach ($p in $possiblePaths) {
-    if (Test-Path "$p/$exeName") {
-        $osPath = "$p/$exeName"
+    $candidate = Join-Path $p $exeName
+    if (Test-Path -LiteralPath $candidate) {
+        $osPath = [System.IO.Path]::GetFullPath($candidate)
         break
     }
 }
 
 # If not found in paths, try simple command name (if in PATH)
 if ($osPath -eq "") {
-    $osPath = Get-Command $exeName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+    $cmd = Get-Command $exeName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+    if ($cmd) { $osPath = [System.IO.Path]::GetFullPath($cmd) }
 }
 
 if (!$osPath) {
@@ -37,12 +44,30 @@ if (!$osPath) {
 $boxes = @("LB", "LC", "LF", "MB", "MC", "MF", "RB", "RF")
 $types = @("Box", "Lid")
 
-$scadFile = "the_sheep.scad"
-$stlDir = "./STLs"
-$pngDir = "./PNGs"
+$scadFile = Join-Path $ScriptRoot "the_sheep.scad"
+if (!(Test-Path -LiteralPath $scadFile)) {
+    Write-Host "ERROR: Missing $scadFile" -ForegroundColor Red
+    return
+}
 
-if (!(Test-Path $stlDir)) { New-Item -ItemType Directory -Path $stlDir }
-if ($RenderPng -and !(Test-Path $pngDir)) { New-Item -ItemType Directory -Path $pngDir }
+# Windows: 8.3 short path so include "..." in a temp wrapper parses reliably (paths with spaces break some builds).
+$isWin = ($IsWindows -or $env:OS -like "*Windows*")
+$includeSheep = if ($isWin) {
+    try {
+        $fso = New-Object -ComObject Scripting.FileSystemObject
+        (($fso.GetFile($scadFile)).ShortPath) -replace '\\', '/'
+    } catch {
+        ($scadFile -replace '\\', '/')
+    }
+} else {
+    $scadFile -replace '\\', '/'
+}
+
+$stlDir = Join-Path $ScriptRoot "STLs"
+$pngDir = Join-Path $ScriptRoot "PNGs"
+
+if (!(Test-Path $stlDir)) { New-Item -ItemType Directory -Path $stlDir | Out-Null }
+if ($RenderPng -and !(Test-Path $pngDir)) { New-Item -ItemType Directory -Path $pngDir | Out-Null }
 
 Write-Host "--- Starting Render Loop ---" -ForegroundColor Cyan
 Write-Host "Using OpenSCAD at: $osPath"
@@ -50,27 +75,30 @@ Write-Host "Using OpenSCAD at: $osPath"
 foreach ($id in $boxes) {
     foreach ($type in $types) {
         $baseName = "sheep_${id}_${type}"
-        $stlFile = "$stlDir/$baseName.stl"
-        $pngFile = "$pngDir/$baseName.png"
+        $stlFile = Join-Path $stlDir "$baseName.stl"
+        $pngFile = Join-Path $pngDir "$baseName.png"
         
         # Set booleans for OpenSCAD
         $pLid = if ($type -eq "Lid") { "true" } else { "false" }
         $pBox = if ($type -eq "Box") { "true" } else { "false" }
         
-        # Avoid cross-platform quoting issues by generating a temporary wrapper script
-        $runFile = "run.scad"
-        $runContent = "print_lid = $pLid; print_box = $pBox; box_id = `"$id`"; include <$scadFile>;"
-        Set-Content -Path $runFile -Value $runContent
+        $runFile = Join-Path $env:TEMP ("sheep_export_{0}_{1}_{2}.scad" -f $id, $type, [guid]::NewGuid().ToString("N"))
+        $runLines = @(
+            "print_lid = $pLid;",
+            "print_box = $pBox;",
+            "box_id = `"$id`";",
+            "include `"$includeSheep`""
+        )
+        $utf8 = New-Object System.Text.UTF8Encoding $false
+        [System.IO.File]::WriteAllText($runFile, ($runLines -join "`n"), $utf8)
 
         # --- STL RENDER ---
-        if (Test-Path $stlFile) { Remove-Item $stlFile }
-        $stlArgs = @(
-            "-o", $stlFile,
-            "--enable", "all",
-            $runFile
-        )
-        & $osPath $stlArgs
-
+        if (Test-Path $stlFile) { Remove-Item -LiteralPath $stlFile -Force }
+        try {
+            & $osPath @("-o", $stlFile, "--enable", "all", $runFile)
+        } finally {
+            if (Test-Path -LiteralPath $runFile) { Remove-Item -LiteralPath $runFile -Force -ErrorAction SilentlyContinue }
+        }
         if ((Test-Path $stlFile) -and (Get-Item $stlFile).Length -gt 0) {
             Write-Host "  [STL] Success" -ForegroundColor Green
         } else {
@@ -79,46 +107,56 @@ foreach ($id in $boxes) {
 
         # --- PNG RENDER ---
         if ($RenderPng) {
-            if (Test-Path $pngFile) { Remove-Item $pngFile }
-            $pngArgs = @(
-                "-o", $pngFile,
-                "--imgsize", "1024,1024",
-                "--colorscheme", "Cornfield",
-                "--viewall", "--autocenter",
-                "--enable", "all",
-                $runFile
-            )
-            & $osPath $pngArgs
+            if (Test-Path $pngFile) { Remove-Item -LiteralPath $pngFile -Force }
+            $runFilePng = Join-Path $env:TEMP ("sheep_export_png_{0}_{1}_{2}.scad" -f $id, $type, [guid]::NewGuid().ToString("N"))
+            [System.IO.File]::WriteAllText($runFilePng, ($runLines -join "`n"), $utf8)
+            try {
+                & $osPath @(
+                    "-o", $pngFile,
+                    "--imgsize", "1024,1024",
+                    "--colorscheme", "Cornfield",
+                    "--viewall", "--autocenter",
+                    "--enable", "all",
+                    $runFilePng
+                )
+            } finally {
+                if (Test-Path -LiteralPath $runFilePng) { Remove-Item -LiteralPath $runFilePng -Force -ErrorAction SilentlyContinue }
+            }
             if (Test-Path $pngFile) {
                 Write-Host "  [PNG] Success" -ForegroundColor Green
             }
         }
-        
-        if (Test-Path $runFile) { Remove-Item $runFile }
     }
 }
 
 if ($RenderPng) {
     Write-Host "Rendering: Full Assembly" -ForegroundColor Yellow
-    $fullPngFile = "$pngDir/sheep_Full_Assembly.png"
-    $runFile = "run.scad"
-    $runContent = "print_lid = false; print_box = true; box_id = `"`"; include <$scadFile>;"
-    Set-Content -Path $runFile -Value $runContent
-    
-    if (Test-Path $fullPngFile) { Remove-Item $fullPngFile }
-    $pngArgs = @(
-        "-o", $fullPngFile,
-        "--imgsize", "1024,1024",
-        "--colorscheme", "Cornfield",
-        "--viewall", "--autocenter",
-        "--enable", "all",
-        $runFile
+    $fullPngFile = Join-Path $pngDir "sheep_Full_Assembly.png"
+    if (Test-Path $fullPngFile) { Remove-Item -LiteralPath $fullPngFile -Force }
+    $runFull = Join-Path $env:TEMP ("sheep_export_full_{0}.scad" -f [guid]::NewGuid().ToString("N"))
+    $fullLines = @(
+        "print_lid = false;",
+        "print_box = true;",
+        "box_id = `"`";",
+        "include `"$includeSheep`""
     )
-    & $osPath $pngArgs
+    $utf8f = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($runFull, ($fullLines -join "`n"), $utf8f)
+    try {
+        & $osPath @(
+            "-o", $fullPngFile,
+            "--imgsize", "1024,1024",
+            "--colorscheme", "Cornfield",
+            "--viewall", "--autocenter",
+            "--enable", "all",
+            $runFull
+        )
+    } finally {
+        if (Test-Path -LiteralPath $runFull) { Remove-Item -LiteralPath $runFull -Force -ErrorAction SilentlyContinue }
+    }
     if (Test-Path $fullPngFile) {
         Write-Host "  [PNG] Full Assembly Success" -ForegroundColor Green
     }
-    if (Test-Path $runFile) { Remove-Item $runFile }
 }
 
 Write-Host "--- All Processes Complete ---" -ForegroundColor Cyan

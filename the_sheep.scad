@@ -8,7 +8,14 @@ chamf = 1.5;
 // Widths for 9 1/4" (234.95mm) Box Interior
 c1_w = 74.5;      
 c2_w = 84.5;      
-c3_w = 74;         
+c3_w = 74;
+
+// Middle column depth must match L/R columns (318mm). Card trays are limited by poker/tarot interiors; trait uses reclaimed slack.
+col_d = 318;
+mb_d = 104.5;   // poker long edge 101 + minimal margin
+mc_d = 142.9;   // tarot long edge 140 + minimal margin
+mf_d = col_d - mb_d - mc_d;
+mf_y0 = mb_d + mc_d;
 
 poker_int = [71, 101];
 tarot_int = [81, 140];
@@ -43,10 +50,10 @@ function box_deck(name, box_w, box_d, pos_xy, lid_lbl, id_off, int_xy) = [
     ]
 ];
 
-function box_traits(name, pos_xy) = [
+function box_traits(name, pos_xy, trait_d) = [
     OBJECT_BOX, 
     [ NAME, name ], 
-    [ BOX_SIZE_XYZ, [c2_w, 66.6, h_std] ], 
+    [ BOX_SIZE_XYZ, [c2_w, trait_d, h_std] ], 
     [ POSITION_XY, pos_xy ], 
     [ CHAMFER_N, chamf ], 
     [ BOX_WALL_THICKNESS, 2 ],
@@ -57,15 +64,23 @@ function box_traits(name, pos_xy) = [
     ],
     [ LABEL, [ LBL_TEXT, name ], [ LBL_PLACEMENT, LEFT ], [ LBL_SIZE, 4 ], [ POSITION_XY, [25, -12] ], [ LBL_FONT, g_font ] ],
     [ BOX_FEATURE, 
-        [ FTR_NUM_COMPARTMENTS_XY, [1, 6] ], 
-        [ FTR_COMPARTMENT_SIZE_XYZ, [c2_w - 6, 9.4, h_std-4] ], 
+        // 6×6: one row per character, six one-tile pockets across (was one wide pocket sized for four tiles).
+        [ FTR_NUM_COMPARTMENTS_XY, [6, 6] ], 
+        [ FTR_COMPARTMENT_SIZE_XYZ, [ (c2_w - 8) / 6, (trait_d - 8) / 6, h_std - 4 ] ], 
         [ FTR_PEDESTAL_BASE_B, true ], 
         [ FTR_CUTOUT_SIDES_4B, [true, true, false, false] ], 
         [ FTR_CUTOUT_WIDTH_PCT, 65 ], 
         [ FTR_CUTOUT_DEPTH_PCT, 40 ],
         [ LABEL, 
-            [ LBL_TEXT, [ ["MERC"], ["DOC"], ["SURV"], ["SGT"], ["MECH"], ["SCOUT"] ] ], 
-            [ LBL_PLACEMENT, CENTER ], [ LBL_SIZE, 3.5 ], [ LBL_FONT, g_font ] 
+            [ LBL_TEXT, [
+                ["MERC", "", "", "", "", ""],
+                ["DOC", "", "", "", "", ""],
+                ["SURV", "", "", "", "", ""],
+                ["SGT", "", "", "", "", ""],
+                ["MECH", "", "", "", "", ""],
+                ["SCOUT", "", "", "", "", ""]
+            ] ], 
+            [ LBL_PLACEMENT, CENTER ], [ LBL_SIZE, 3 ], [ LBL_FONT, g_font ] 
         ]
     ]
 ];
@@ -118,9 +133,9 @@ data = [
     box_deck("LC", c1_w, 106, [0, 106], "EVENTS",    [40, -12], poker_int),
     box_deck("LF", c1_w, 106, [0, 212], "CURSES",    [40, -12], poker_int), 
     
-    box_deck("MB", c2_w, 106, [c1_w, 0],      "RESOURCES", [40, -12], poker_int),
-    box_deck("MC", c2_w, 145.4, [c1_w, 106], "MUTATIONS",    [55, -12], tarot_int), 
-    box_traits("MF", [c1_w, 251.4]),
+    box_deck("MB", c2_w, mb_d, [c1_w, 0],       "RESOURCES", [40, -12], poker_int),
+    box_deck("MC", c2_w, mc_d, [c1_w, mb_d],    "MUTATIONS", [55, -12], tarot_int), 
+    box_traits("MF", [c1_w, mf_y0], mf_d),
     
     box_tokens("RB", [c1_w + c2_w, 0]),
     box_bags("RF", "SHEEP", [c1_w + c2_w, 160])
