@@ -27,6 +27,13 @@ The insert includes several modular boxes with custom lids and labels, optimized
 
 The project uses a custom font (`Alfa Slab One`) and features decorative lid ironwork patterns for a premium look and feel. 
 
-## Automated Exports
+## Automated Exports & Testing
 
 This repository includes a GitHub Actions workflow (`.github/workflows/export.yml`) that automatically renders the OpenSCAD `.scad` files into `.stl` models and `.png` previews whenever changes are pushed to the main branch. The output files are saved in the `STLs/` and `PNGs/` directories respectively.
+
+### Visual Regression Testing
+The automated export pipeline also features **Visual Regression Testing** via ImageMagick. 
+
+During the GitHub Actions build, the newly rendered PNG previews are compared pixel-by-pixel against the "golden" baselines stored in the `tests/baselines/` directory. 
+- If a geometric or visual regression is detected, the build **fails** and uploads a difference heatmap artifact so you can inspect what broke.
+- If you *intentionally* modify a design (such as changing a bin's dimensions), the test will fail. To fix this, simply replace the outdated images in `tests/baselines/` with your new, validated PNG renders and commit them to establish the new baselines.
