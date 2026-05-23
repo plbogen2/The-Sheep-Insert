@@ -176,6 +176,7 @@ foreach ($id in $boxesToBuild) {
                     "--imgsize", "1024,1024",
                     "--colorscheme", "Cornfield",
                     "--viewall", "--autocenter",
+                    "--csglimit", "10000000",
                     "--enable", "all",
                     $runFilePng
                 )
@@ -233,6 +234,7 @@ if ($RenderPng) {
             "--imgsize", "1024,1024",
             "--colorscheme", "Cornfield",
             "--viewall", "--autocenter",
+            "--csglimit", "10000000",
             "--enable", "all",
             $runFull
         )
