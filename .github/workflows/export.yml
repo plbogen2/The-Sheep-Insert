@@ -32,12 +32,16 @@ jobs:
           restore-keys: |
             openscad-csg-cache-
 
+      - name: Get latest BIT commit hash
+        id: bit-commit
+        run: echo "hash=$(git ls-remote https://github.com/dppdppd/The-Boardgame-Insert-Toolkit.git HEAD | awk '{print $1}')" >> $GITHUB_OUTPUT
+
       - name: Cache BIT Library
         id: cache-bit
         uses: actions/cache@v4
         with:
           path: boardgame_insert_toolkit_lib.4.scad
-          key: bit-lib-v4
+          key: bit-lib-${{ steps.bit-commit.outputs.hash }}
 
       - name: Download Boardgame Insert Toolkit
         if: steps.cache-bit.outputs.cache-hit != 'true'
