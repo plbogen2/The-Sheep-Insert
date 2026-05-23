@@ -30,6 +30,12 @@ jobs:
       - name: Create symlink for openscad
         run: sudo ln -s /usr/bin/openscad-nightly /usr/local/bin/openscad
 
+      - name: Install Custom Fonts
+        run: |
+          mkdir -p ~/.local/share/fonts
+          wget -qO ~/.local/share/fonts/AlfaSlabOne-Regular.ttf "https://raw.githubusercontent.com/google/fonts/main/ofl/alfaslabone/AlfaSlabOne-Regular.ttf"
+          fc-cache -f -v
+
       - name: Get latest BIT commit hash
         id: bit-commit
         run: echo "hash=$(git ls-remote https://github.com/dppdppd/The-Boardgame-Insert-Toolkit.git HEAD | awk '{print $1}')" >> $GITHUB_OUTPUT
