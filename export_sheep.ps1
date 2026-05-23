@@ -25,6 +25,7 @@ $possiblePaths = if ($IsWindows -or $env:OS -like "*Windows*") {
 
 $osPath = ""
 $exeName = if ($IsWindows -or $env:OS -like "*Windows*") { "openscad.exe" } else { "openscad" }
+$tempDir = [System.IO.Path]::GetTempPath()
 
 foreach ($p in $possiblePaths) {
     $candidate = Join-Path $p $exeName
@@ -117,7 +118,7 @@ foreach ($id in $boxesToBuild) {
         $pLid = if ($type -eq "Lid") { "true" } else { "false" }
         $pBox = if ($type -eq "Box") { "true" } else { "false" }
         
-        $runFile = Join-Path $env:TEMP ("sheep_export_{0}_{1}_{2}.scad" -f $id, $type, [guid]::NewGuid().ToString("N"))
+        $runFile = Join-Path $tempDir ("sheep_export_{0}_{1}_{2}.scad" -f $id, $type, [guid]::NewGuid().ToString("N"))
         $runLines = @(
             "print_lid = $pLid;",
             "print_box = $pBox;",
@@ -143,7 +144,7 @@ foreach ($id in $boxesToBuild) {
         # --- PNG RENDER ---
         if ($RenderPng) {
             if (Test-Path $pngFile) { Remove-Item -LiteralPath $pngFile -Force }
-            $runFilePng = Join-Path $env:TEMP ("sheep_export_png_{0}_{1}_{2}.scad" -f $id, $type, [guid]::NewGuid().ToString("N"))
+            $runFilePng = Join-Path $tempDir ("sheep_export_png_{0}_{1}_{2}.scad" -f $id, $type, [guid]::NewGuid().ToString("N"))
             [System.IO.File]::WriteAllText($runFilePng, ($runLines -join "`n"), $utf8)
             try {
                 & $osPath @(
@@ -168,7 +169,7 @@ if ($RenderPng) {
     Write-Host "Rendering: Full Assembly" -ForegroundColor Yellow
     $fullPngFile = Join-Path $pngDir "sheep_Full_Assembly.png"
     if (Test-Path $fullPngFile) { Remove-Item -LiteralPath $fullPngFile -Force }
-    $runFull = Join-Path $env:TEMP ("sheep_export_full_{0}.scad" -f [guid]::NewGuid().ToString("N"))
+    $runFull = Join-Path $tempDir ("sheep_export_full_{0}.scad" -f [guid]::NewGuid().ToString("N"))
     $fullLines = @(
         "print_lid = false;",
         "print_box = true;",
