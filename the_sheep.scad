@@ -12,13 +12,13 @@ c3_w = 74;
 
 // Middle column depth must match L/R columns (318mm). Card trays are limited by poker/tarot interiors; trait uses reclaimed slack.
 col_d = 318;
-mb_d = 104.5;   // poker long edge 101 + minimal margin
-mc_d = 143;   // tarot long edge 140 + minimal margin
+mb_d = 99.5;    // poker long edge 96 + minimal margin
+mc_d = 129.5;   // tarot long edge 126 + minimal margin
 mf_d = col_d - mb_d - mc_d;
 mf_y0 = mb_d + mc_d;
 
-poker_int = [71, 101];
-tarot_int = [81, 140];
+poker_int = [71, 96];
+tarot_int = [81, 126];
 
 lid_ironwork = [
     [ LID_PATTERN_RADIUS, 18 ],      
@@ -136,12 +136,12 @@ data = [
     box_deck("LC", c1_w, 106, [0, 106], "EVENTS",    [40, -12], poker_int),
     box_deck("LF", c1_w, 106, [0, 212], "CURSES",    [40, -12], poker_int), 
     
-    box_deck("MB", c2_w, mb_d, [c1_w, 0],       "RESOURCES", [40, -12], poker_int),
+    box_deck("MB", c2_w, mb_d, [c1_w, 0],       "FLOCK", [40, -12], poker_int),
     box_deck("MC", c2_w, mc_d, [c1_w, mb_d],    "MUTATIONS", [55, -12], tarot_int), 
     box_traits("MF", [c1_w, mf_y0], mf_d),
     
     box_tokens("RB", [c1_w + c2_w, 0]),
-    box_bags("RF", "SHEEP", [c1_w + c2_w, 160])
+    box_bags("RF", "BAGS & STANDEES", [c1_w + c2_w, 160])
 ];
 
 Make(data);

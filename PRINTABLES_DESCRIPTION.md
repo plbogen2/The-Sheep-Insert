@@ -18,12 +18,12 @@ This set contains 8 modular containers designed to tile perfectly within the ori
   * `EQUIPMENT` Deck Box
   * `EVENTS` Deck Box
   * `CURSES` Deck Box
-  * `RESOURCES` Deck Box
+  * `FLOCK` Deck Box
 * **Deck Boxes (Tarot Size):**
   * `MUTATIONS` Deck Box
 * **Trait Trays:** A dedicated 6-slot tray for tracking character traits (`MERC`, `DOC`, `SURV`, `SGT`, `MECH`, `SCOUT`).
 * **Token & Tracker Bin:** Deep, filleted (rounded) storage compartments for easy scooping of `ESSENCE`, `LANTERNS`, `CORRUPTION`, `EXPERIENCE`, and `POLLUTION` tokens.
-* **Sheep Bag Tray:** A large, open-topped compartment specifically designed for the drawstring bag.
+* **Bags & Standees Tray:** A massive, open-topped compartment specifically designed to house all 4 drawstring bags and the 12 Standees & Bases.
 
 ## 🖨 Recommended Print Settings
 
