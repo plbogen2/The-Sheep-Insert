@@ -26,14 +26,6 @@ jobs:
       - name: Create symlink for openscad
         run: sudo ln -s /usr/bin/openscad-nightly /usr/local/bin/openscad
 
-      - name: Cache OpenSCAD Geometry Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/OpenSCAD
-          key: openscad-csg-cache-${{ github.run_id }}
-          restore-keys: |
-            openscad-csg-cache-
-
       - name: Get latest BIT commit hash
         id: bit-commit
         run: echo "hash=$(git ls-remote https://github.com/dppdppd/The-Boardgame-Insert-Toolkit.git HEAD | awk '{print $1}')" >> $GITHUB_OUTPUT
