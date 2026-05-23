@@ -25,7 +25,7 @@ jobs:
           wget -qO- https://files.openscad.org/OBS-Repository-Key.pub | sudo tee /etc/apt/trusted.gpg.d/obs-openscad-nightly.asc
           echo "deb https://download.opensuse.org/repositories/home:/t-paul/xUbuntu_24.04/ ./" | sudo tee /etc/apt/sources.list.d/openscad.list
           sudo apt-get update
-          sudo apt-get install -y openscad-nightly
+          sudo apt-get install -y openscad-nightly imagemagick
 
       - name: Create symlink for openscad
         run: sudo ln -s /usr/bin/openscad-nightly /usr/local/bin/openscad
