@@ -200,7 +200,7 @@ foreach ($id in $boxesToBuild) {
                             if ($isWin) {
                                 $output = & magick compare -metric AE -fuzz 5% $baselineFile $pngFile $diffFile 2>&1
                             } else {
-                                $output = & compare -metric AE -fuzz 5% $baselineFile $pngFile $diffFile 2>&1
+                                $output = & /usr/bin/compare -metric AE -fuzz 5% $baselineFile $pngFile $diffFile 2>&1
                             }
                             if ($LASTEXITCODE -eq 0) {
                                 Write-Host "  [TEST] PASSED" -ForegroundColor Green
@@ -263,7 +263,7 @@ if ($RenderPng) {
                     if ($isWin) {
                         $output = & magick compare -metric AE -fuzz 5% $baselineFile $fullPngFile $diffFile 2>&1
                     } else {
-                        $output = & compare -metric AE -fuzz 5% $baselineFile $fullPngFile $diffFile 2>&1
+                        $output = & /usr/bin/compare -metric AE -fuzz 5% $baselineFile $fullPngFile $diffFile 2>&1
                     }
                     if ($LASTEXITCODE -eq 0) {
                         Write-Host "  [TEST] PASSED" -ForegroundColor Green
