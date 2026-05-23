@@ -199,7 +199,11 @@ foreach ($id in $boxesToBuild) {
                     $baselineFile = Join-Path $baselineDir "$baseName.png"
                     $diffFile = Join-Path $diffDir "${baseName}_diff.png"
                     
-                    if (!(Test-Path $baselineFile)) {
+                    if ($UpdateBaselines) {
+                        Write-Host "  [TEST] Updating baseline..." -ForegroundColor Cyan
+                        Copy-Item -LiteralPath $pngFile -Destination $baselineFile -Force
+                    }
+                    elseif (!(Test-Path $baselineFile)) {
                         Write-Host "  [TEST] Baseline not found. Creating new baseline..." -ForegroundColor Yellow
                         Copy-Item -LiteralPath $pngFile -Destination $baselineFile -Force
                     }
@@ -267,7 +271,11 @@ if ($RenderPng) {
             $baselineFile = Join-Path $baselineDir "sheep_Full_Assembly.png"
             $diffFile = Join-Path $diffDir "sheep_Full_Assembly_diff.png"
             
-            if (!(Test-Path $baselineFile)) {
+            if ($UpdateBaselines) {
+                Write-Host "  [TEST] Updating baseline..." -ForegroundColor Cyan
+                Copy-Item -LiteralPath $fullPngFile -Destination $baselineFile -Force
+            }
+            elseif (!(Test-Path $baselineFile)) {
                 Write-Host "  [TEST] Baseline not found. Creating new baseline..." -ForegroundColor Yellow
                 Copy-Item -LiteralPath $fullPngFile -Destination $baselineFile -Force
             }
