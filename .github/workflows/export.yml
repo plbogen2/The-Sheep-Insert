@@ -3,6 +3,10 @@ name: Export Models
 on:
   push:
     branches: [ main ]
+    paths:
+      - '**.scad'
+      - '**.ps1'
+      - '.github/workflows/export.yml'
   workflow_dispatch:
 
 jobs:
