@@ -96,15 +96,17 @@ function box_tokens(name, pos_xy) = [
         [ LABEL, [ LBL_TEXT, "TRACKERS" ], [ LBL_SIZE, 5 ], [ POSITION_XY, [0, -5.5] ], [ LBL_FONT, g_font ] ]
     ],
     [ LABEL, [ LBL_TEXT, name ], [ LBL_PLACEMENT, LEFT ], [ LBL_SIZE, 4 ], [ POSITION_XY, [65, -12] ], [ LBL_FONT, g_font ] ],
-    [ BOX_FEATURE, 
-        [ FTR_NUM_COMPARTMENTS_XY, [2, 1] ], [ FTR_COMPARTMENT_SIZE_XYZ, [(c3_w-6)/2, 90, h_std-4] ], [ POSITION_XY, [CENTER, 0] ],
-        [ FTR_SHAPE, FILLET ], [ FTR_FILLET_RADIUS, 10 ],
-        [ LABEL, [ LBL_TEXT, [["ESSENCE", "LANTERNS"]] ], [ LBL_PLACEMENT, CENTER ], [ ROTATION, 90 ], [ LBL_SIZE, 4 ], [ LBL_FONT, g_font ] ] 
-    ],
-    [ BOX_FEATURE, 
-        [ FTR_NUM_COMPARTMENTS_XY, [3, 1] ], [ FTR_COMPARTMENT_SIZE_XYZ, [(c3_w-8)/3, 60, h_std-4] ], [ POSITION_XY, [CENTER, 94] ],
-        [ FTR_SHAPE, FILLET ], [ FTR_FILLET_RADIUS, 5 ],
-        [ LABEL, [ LBL_TEXT, [["CORRUPTION", "EXPERIENCE", "POLLUTION"]] ], [ LBL_PLACEMENT, CENTER ], [ ROTATION, 90 ], [ LBL_SIZE, 3 ], [ LBL_FONT, g_font ] ] 
+    [ FEATURE_GROUP,
+        [ BOX_FEATURE, 
+            [ FTR_NUM_COMPARTMENTS_XY, [2, 1] ], [ FTR_COMPARTMENT_SIZE_XYZ, [(c3_w-6)/2, 90, h_std-4] ], [ POSITION_XY, [0, 0] ],
+            [ FTR_SHAPE, FILLET ], [ FTR_FILLET_RADIUS, 10 ],
+            [ LABEL, [ LBL_TEXT, [["ESSENCE", "LANTERNS"]] ], [ LBL_PLACEMENT, CENTER ], [ ROTATION, 90 ], [ LBL_SIZE, 4 ], [ LBL_FONT, g_font ] ] 
+        ],
+        [ BOX_FEATURE, 
+            [ FTR_NUM_COMPARTMENTS_XY, [3, 1] ], [ FTR_COMPARTMENT_SIZE_XYZ, [(c3_w-8)/3, 60, h_std-4] ], [ POSITION_XY, [0.25, 94] ],
+            [ FTR_SHAPE, FILLET ], [ FTR_FILLET_RADIUS, 5 ],
+            [ LABEL, [ LBL_TEXT, [["CORRUPTION", "EXPERIENCE", "POLLUTION"]] ], [ LBL_PLACEMENT, CENTER ], [ ROTATION, 90 ], [ LBL_SIZE, 3 ], [ LBL_FONT, g_font ] ] 
+        ]
     ]
 ];
 

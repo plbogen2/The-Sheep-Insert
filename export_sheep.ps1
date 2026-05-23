@@ -1,9 +1,19 @@
 param(
-    [switch]$RenderPng = $false
+    [switch]$RenderPng = $false,
+    [switch]$Test = $false
 )
 
 $ScriptRoot = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent -LiteralPath $MyInvocation.MyCommand.Path }
 Set-Location -LiteralPath $ScriptRoot
+
+$global:TestFailed = $false
+$baselineDir = Join-Path $ScriptRoot "tests/baselines"
+$diffDir = Join-Path $ScriptRoot "tests/diffs"
+
+if ($Test) {
+    if (!(Test-Path $baselineDir)) { New-Item -ItemType Directory -Path $baselineDir -Force | Out-Null }
+    if (!(Test-Path $diffDir)) { New-Item -ItemType Directory -Path $diffDir -Force | Out-Null }
+}
 
 # 1. FIND OPENSCAD INSTALLATION
 # Checks common paths for both System and User-level installs
@@ -160,6 +170,31 @@ foreach ($id in $boxesToBuild) {
             }
             if (Test-Path $pngFile) {
                 Write-Host "  [PNG] Success" -ForegroundColor Green
+
+                if ($Test) {
+                    $baselineFile = Join-Path $baselineDir "$baseName.png"
+                    $diffFile = Join-Path $diffDir "${baseName}_diff.png"
+                    
+                    if (!(Test-Path $baselineFile)) {
+                        Write-Host "  [TEST] Baseline not found. Creating new baseline..." -ForegroundColor Yellow
+                        Copy-Item -LiteralPath $pngFile -Destination $baselineFile -Force
+                    } else {
+                        Write-Host "  [TEST] Comparing against baseline..."
+                        try {
+                            $output = & magick compare -metric AE -fuzz 5% $baselineFile $pngFile $diffFile 2>&1
+                            if ($LASTEXITCODE -eq 0) {
+                                Write-Host "  [TEST] PASSED" -ForegroundColor Green
+                                if (Test-Path $diffFile) { Remove-Item $diffFile -ErrorAction SilentlyContinue }
+                            } else {
+                                Write-Host "  [TEST] FAILED: Mismatch! (Diff score: $output)" -ForegroundColor Red
+                                $global:TestFailed = $true
+                            }
+                        } catch {
+                            Write-Host "  [TEST] ERROR: ImageMagick (magick) is likely not installed or not in PATH." -ForegroundColor Red
+                            $global:TestFailed = $true
+                        }
+                    }
+                }
             }
         }
     }
@@ -192,7 +227,37 @@ if ($RenderPng) {
     }
     if (Test-Path $fullPngFile) {
         Write-Host "  [PNG] Full Assembly Success" -ForegroundColor Green
+
+        if ($Test) {
+            $baselineFile = Join-Path $baselineDir "sheep_Full_Assembly.png"
+            $diffFile = Join-Path $diffDir "sheep_Full_Assembly_diff.png"
+            
+            if (!(Test-Path $baselineFile)) {
+                Write-Host "  [TEST] Baseline not found. Creating new baseline..." -ForegroundColor Yellow
+                Copy-Item -LiteralPath $fullPngFile -Destination $baselineFile -Force
+            } else {
+                Write-Host "  [TEST] Comparing against baseline..."
+                try {
+                    $output = & magick compare -metric AE -fuzz 5% $baselineFile $fullPngFile $diffFile 2>&1
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "  [TEST] PASSED" -ForegroundColor Green
+                        if (Test-Path $diffFile) { Remove-Item $diffFile -ErrorAction SilentlyContinue }
+                    } else {
+                        Write-Host "  [TEST] FAILED: Mismatch! (Diff score: $output)" -ForegroundColor Red
+                        $global:TestFailed = $true
+                    }
+                } catch {
+                    Write-Host "  [TEST] ERROR: ImageMagick (magick) is likely not installed or not in PATH." -ForegroundColor Red
+                    $global:TestFailed = $true
+                }
+            }
+        }
     }
 }
 
 Write-Host "--- All Processes Complete ---" -ForegroundColor Cyan
+
+if ($Test -and $global:TestFailed) {
+    Write-Host "ERROR: One or more visual regression tests failed." -ForegroundColor Red
+    exit 1
+}

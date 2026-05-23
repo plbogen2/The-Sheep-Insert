@@ -52,7 +52,7 @@ jobs:
 
       - name: Run Export Script
         shell: pwsh
-        run: ./export_sheep.ps1 -RenderPng
+        run: ./export_sheep.ps1 -RenderPng -Test
 
       - name: Upload STLs as Artifacts
         uses: actions/upload-artifact@v5
@@ -65,6 +65,13 @@ jobs:
         with:
           name: Sheep-Insert-PNGs
           path: PNGs/*.png
+
+      - name: Upload Test Diff Failures
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: Visual-Regression-Diffs
+          path: tests/diffs/*.png
 
       - name: Commit Generated Files to Repo
         run: |
