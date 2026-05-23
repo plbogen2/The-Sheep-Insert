@@ -13,7 +13,7 @@ c3_w = 74;
 // Middle column depth must match L/R columns (318mm). Card trays are limited by poker/tarot interiors; trait uses reclaimed slack.
 col_d = 318;
 mb_d = 104.5;   // poker long edge 101 + minimal margin
-mc_d = 142.9;   // tarot long edge 140 + minimal margin
+mc_d = 143;   // tarot long edge 140 + minimal margin
 mf_d = col_d - mb_d - mc_d;
 mf_y0 = mb_d + mc_d;
 
@@ -66,7 +66,7 @@ function box_traits(name, pos_xy, trait_d) = [
     [ BOX_FEATURE, 
         // 6 slots: one row per character, each holding 6 trait tiles
         [ FTR_NUM_COMPARTMENTS_XY, [1, 6] ], 
-        [ FTR_COMPARTMENT_SIZE_XYZ, [ c2_w - 4, (trait_d - 8) / 6, h_std - 4 ] ], 
+        [ FTR_COMPARTMENT_SIZE_XYZ, [ c2_w - 4, (trait_d - 14) / 6, h_std - 4 ] ], 
         [ FTR_PEDESTAL_BASE_B, true ], 
         [ FTR_CUTOUT_SIDES_4B, [true, true, false, false] ], 
         [ FTR_CUTOUT_WIDTH_PCT, 65 ], 
@@ -96,17 +96,15 @@ function box_tokens(name, pos_xy) = [
         [ LABEL, [ LBL_TEXT, "TRACKERS" ], [ LBL_SIZE, 5 ], [ POSITION_XY, [0, -5.5] ], [ LBL_FONT, g_font ] ]
     ],
     [ LABEL, [ LBL_TEXT, name ], [ LBL_PLACEMENT, LEFT ], [ LBL_SIZE, 4 ], [ POSITION_XY, [65, -12] ], [ LBL_FONT, g_font ] ],
-    [ FEATURE_GROUP,
-        [ BOX_FEATURE, 
-            [ FTR_NUM_COMPARTMENTS_XY, [2, 1] ], [ FTR_COMPARTMENT_SIZE_XYZ, [(c3_w-6)/2, 90, h_std-4] ], [ POSITION_XY, [CENTER, 0] ],
-            [ FTR_SHAPE, FILLET ], [ FTR_FILLET_RADIUS, 10 ],
-            [ LABEL, [ LBL_TEXT, [["ESSENCE", "LANTERNS"]] ], [ LBL_PLACEMENT, CENTER ], [ ROTATION, 90 ], [ LBL_SIZE, 4 ], [ LBL_FONT, g_font ] ] 
-        ],
-        [ BOX_FEATURE, 
-            [ FTR_NUM_COMPARTMENTS_XY, [3, 1] ], [ FTR_COMPARTMENT_SIZE_XYZ, [(c3_w-8)/3, 60, h_std-4] ], [ POSITION_XY, [CENTER, 94] ],
-            [ FTR_SHAPE, FILLET ], [ FTR_FILLET_RADIUS, 5 ],
-            [ LABEL, [ LBL_TEXT, [["CORRUPTION", "EXPERIENCE", "POLLUTION"]] ], [ LBL_PLACEMENT, CENTER ], [ ROTATION, 90 ], [ LBL_SIZE, 3 ], [ LBL_FONT, g_font ] ] 
-        ]
+    [ BOX_FEATURE, 
+        [ FTR_NUM_COMPARTMENTS_XY, [2, 1] ], [ FTR_COMPARTMENT_SIZE_XYZ, [(c3_w-6)/2, 90, h_std-4] ], [ POSITION_XY, [CENTER, 0] ],
+        [ FTR_SHAPE, FILLET ], [ FTR_FILLET_RADIUS, 10 ],
+        [ LABEL, [ LBL_TEXT, [["ESSENCE", "LANTERNS"]] ], [ LBL_PLACEMENT, CENTER ], [ ROTATION, 90 ], [ LBL_SIZE, 4 ], [ LBL_FONT, g_font ] ] 
+    ],
+    [ BOX_FEATURE, 
+        [ FTR_NUM_COMPARTMENTS_XY, [3, 1] ], [ FTR_COMPARTMENT_SIZE_XYZ, [(c3_w-8)/3, 60, h_std-4] ], [ POSITION_XY, [CENTER, 94] ],
+        [ FTR_SHAPE, FILLET ], [ FTR_FILLET_RADIUS, 5 ],
+        [ LABEL, [ LBL_TEXT, [["CORRUPTION", "EXPERIENCE", "POLLUTION"]] ], [ LBL_PLACEMENT, CENTER ], [ ROTATION, 90 ], [ LBL_SIZE, 3 ], [ LBL_FONT, g_font ] ] 
     ]
 ];
 
@@ -125,11 +123,12 @@ local_print_lid = is_undef(print_lid) ? true : print_lid;
 local_print_box = is_undef(print_box) ? true : print_box;
 local_box_id = is_undef(box_id) ? "" : box_id;
 
+print_types = (local_print_box && local_print_lid) ? [BOX, LID] : (local_print_box ? [BOX] : (local_print_lid ? [LID] : []));
+
 // --- FINAL ASSEMBLY ---
 data = [
-    [G_PRINT_LID_B, local_print_lid],
-    [G_PRINT_BOX_B, local_print_box],
-    [G_ISOLATED_PRINT_BOX, local_box_id],
+    [G_PRINT_TYPES, print_types],
+    [G_PRINT_BOXES, local_box_id],
     
     box_deck("LB", c1_w, 106, [0, 0],   "EQUIPMENT", [40, -12], poker_int),
     box_deck("LC", c1_w, 106, [0, 106], "EVENTS",    [40, -12], poker_int),
