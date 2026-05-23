@@ -64,23 +64,23 @@ function box_traits(name, pos_xy, trait_d) = [
     ],
     [ LABEL, [ LBL_TEXT, name ], [ LBL_PLACEMENT, LEFT ], [ LBL_SIZE, 4 ], [ POSITION_XY, [25, -12] ], [ LBL_FONT, g_font ] ],
     [ BOX_FEATURE, 
-        // 6×6: one row per character, six one-tile pockets across (was one wide pocket sized for four tiles).
-        [ FTR_NUM_COMPARTMENTS_XY, [6, 6] ], 
-        [ FTR_COMPARTMENT_SIZE_XYZ, [ (c2_w - 8) / 6, (trait_d - 8) / 6, h_std - 4 ] ], 
+        // 6 slots: one row per character, each holding 6 trait tiles
+        [ FTR_NUM_COMPARTMENTS_XY, [1, 6] ], 
+        [ FTR_COMPARTMENT_SIZE_XYZ, [ c2_w - 4, (trait_d - 8) / 6, h_std - 4 ] ], 
         [ FTR_PEDESTAL_BASE_B, true ], 
         [ FTR_CUTOUT_SIDES_4B, [true, true, false, false] ], 
         [ FTR_CUTOUT_WIDTH_PCT, 65 ], 
         [ FTR_CUTOUT_DEPTH_PCT, 40 ],
         [ LABEL, 
             [ LBL_TEXT, [
-                ["MERC", "", "", "", "", ""],
-                ["DOC", "", "", "", "", ""],
-                ["SURV", "", "", "", "", ""],
-                ["SGT", "", "", "", "", ""],
-                ["MECH", "", "", "", "", ""],
-                ["SCOUT", "", "", "", "", ""]
+                ["MERC"],
+                ["DOC"],
+                ["SURV"],
+                ["SGT"],
+                ["MECH"],
+                ["SCOUT"]
             ] ], 
-            [ LBL_PLACEMENT, CENTER ], [ LBL_SIZE, 3 ], [ LBL_FONT, g_font ] 
+            [ LBL_PLACEMENT, CENTER ], [ LBL_SIZE, 4 ], [ LBL_FONT, g_font ] 
         ]
     ]
 ];
