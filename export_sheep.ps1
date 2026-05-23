@@ -35,7 +35,7 @@ $possiblePaths = if ($IsWindows -or $env:OS -like "*Windows*") {
 }
 
 $osPath = ""
-$exeName = if ($IsWindows -or $env:OS -like "*Windows*") { "openscad.exe" } else { "openscad" }
+$exeName = if ($IsWindows -or $env:OS -like "*Windows*") { "openscad.com" } else { "openscad" }
 $tempDir = [System.IO.Path]::GetTempPath()
 
 foreach ($p in $possiblePaths) {
