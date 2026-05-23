@@ -46,8 +46,38 @@ if (!$osPath) {
 }
 
 # 3. DEFINE TARGETS
-$boxes = @("LB", "LC", "LF", "MB", "MC", "MF", "RB", "RF")
+$allBoxes = @("LB", "LC", "LF", "MB", "MC", "MF", "RB", "RF")
 $types = @("Box", "Lid")
+
+# Determine which boxes to build based on the latest git commit message
+$commitMessage = ""
+try {
+    $commitMessage = git log -1 --pretty=%B 2>$null
+} catch {
+    # git not available or failed, ignore
+}
+
+$boxesToBuild = @()
+if ($commitMessage -match "\[build:(.*?)\]") {
+    $tags = $matches[1] -split ","
+    foreach ($tag in $tags) {
+        $t = $tag.Trim()
+        if ($t -eq "all") {
+            $boxesToBuild = $allBoxes
+            break
+        }
+        if ($allBoxes -contains $t -and $boxesToBuild -notcontains $t) {
+            $boxesToBuild += $t
+        }
+    }
+}
+
+# Default to building everything if no valid tags were found
+if ($boxesToBuild.Count -eq 0) {
+    $boxesToBuild = $allBoxes
+}
+
+Write-Host "Boxes to render: $($boxesToBuild -join ', ')" -ForegroundColor Yellow
 
 $scadFile = Join-Path $ScriptRoot "the_sheep.scad"
 if (!(Test-Path -LiteralPath $scadFile)) {
@@ -77,7 +107,7 @@ if ($RenderPng -and !(Test-Path $pngDir)) { New-Item -ItemType Directory -Path $
 Write-Host "--- Starting Render Loop ---" -ForegroundColor Cyan
 Write-Host "Using OpenSCAD at: $osPath"
 
-foreach ($id in $boxes) {
+foreach ($id in $boxesToBuild) {
     foreach ($type in $types) {
         $baseName = "sheep_${id}_${type}"
         $stlFile = Join-Path $stlDir "$baseName.stl"

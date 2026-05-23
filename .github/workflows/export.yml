@@ -24,7 +24,23 @@ jobs:
       - name: Create symlink for openscad
         run: sudo ln -s /usr/bin/openscad-nightly /usr/local/bin/openscad
 
+      - name: Cache OpenSCAD Geometry Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/OpenSCAD
+          key: openscad-csg-cache-${{ github.run_id }}
+          restore-keys: |
+            openscad-csg-cache-
+
+      - name: Cache BIT Library
+        id: cache-bit
+        uses: actions/cache@v4
+        with:
+          path: boardgame_insert_toolkit_lib.4.scad
+          key: bit-lib-v4
+
       - name: Download Boardgame Insert Toolkit
+        if: steps.cache-bit.outputs.cache-hit != 'true'
         run: |
           git clone --depth 1 https://github.com/dppdppd/The-Boardgame-Insert-Toolkit.git bit_temp
           find bit_temp -name "boardgame_insert_toolkit_lib.4.scad" -exec cp {} . \;
