@@ -7,16 +7,21 @@ Set-Location -LiteralPath $ScriptRoot
 
 # 1. FIND OPENSCAD INSTALLATION
 # Checks common paths for both System and User-level installs
-$possiblePaths = @(
-    "$env:LOCALAPPDATA\Programs\OpenSCAD (Nightly)",
-    "C:\Program Files\OpenSCAD (Nightly)",
-    "$env:LOCALAPPDATA\Programs\OpenSCAD",
-    "$env:LOCALAPPDATA\OpenSCAD",
-    "C:\Program Files\OpenSCAD",
-    "C:\Program Files (x86)\OpenSCAD",
-    "/usr/bin", # For Linux (GitHub Actions)
-    "/usr/local/bin"
-)
+$possiblePaths = if ($IsWindows -or $env:OS -like "*Windows*") {
+    @(
+        "$env:LOCALAPPDATA\Programs\OpenSCAD (Nightly)",
+        "C:\Program Files\OpenSCAD (Nightly)",
+        "$env:LOCALAPPDATA\Programs\OpenSCAD",
+        "$env:LOCALAPPDATA\OpenSCAD",
+        "C:\Program Files\OpenSCAD",
+        "C:\Program Files (x86)\OpenSCAD"
+    )
+} else {
+    @(
+        "/usr/bin",
+        "/usr/local/bin"
+    )
+}
 
 $osPath = ""
 $exeName = if ($IsWindows -or $env:OS -like "*Windows*") { "openscad.exe" } else { "openscad" }
